@@ -3,6 +3,7 @@ import type {
   AccountRole,
   AiProviderId,
   CityRequest,
+  CourierAccountOutcome,
   CourierApplication,
   DemandStatus,
   HealthPayload,
@@ -81,7 +82,12 @@ export const vendorApplications = {
 export const couriers = {
   list: () => api.get<Listed<CourierApplication>>('/api/admin/couriers').then((r) => r.data),
   approve: (id: string) =>
-    api.post<{ application: CourierApplication }>(`/api/admin/couriers/${encodeURIComponent(id)}/approve`),
+    api.post<{
+      application: CourierApplication;
+      account?: CourierAccountOutcome | null;
+      accountLinked?: boolean;
+      message?: string;
+    }>(`/api/admin/couriers/${encodeURIComponent(id)}/approve`),
   reject: (id: string, reason: string) =>
     api.post<{ application: CourierApplication }>(
       `/api/admin/couriers/${encodeURIComponent(id)}/reject`,

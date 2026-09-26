@@ -56,7 +56,12 @@ export function Couriers() {
     try {
       const result = await api.approve(approving.id);
       replace(result.application);
-      toast.success(`اعتُمد المندوب ${courierName(approving)}.`);
+      if (result.accountLinked === false) {
+        // Approved, but no client account could be switched to courier — say so plainly.
+        toast.failure(result.message || `اعتُمد ${courierName(approving)} لكن لم نربطه بحساب.`);
+      } else {
+        toast.success(result.message || `اعتُمد المندوب ${courierName(approving)}.`);
+      }
       setApproving(null);
     } catch (caught) {
       toast.failure(errorText(caught));

@@ -75,6 +75,8 @@ export type CourierApplication = {
   carTypeOther?: string;
   fulfillment: string[];
   products: Array<{ name?: string; price?: number }>;
+  email?: string;
+  phone?: string;
   status: ApplicationStatus;
   createdAt: string;
   reviewedAt?: string;
@@ -191,3 +193,10 @@ export type VendorHub = {
   bookingCount: number;
   isOwn: boolean;
 };
+
+/** What approving a courier application did to the matching account. */
+export type CourierAccountOutcome =
+  | { status: 'promoted' | 'already_courier'; userId: string }
+  | { status: 'protected_role'; userId: string; role: AccountRole }
+  | { status: 'not_found'; userId: string }
+  | { status: 'not_linked' };
