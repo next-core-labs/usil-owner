@@ -1,4 +1,4 @@
-import type { AccountRole, ApplicationStatus, DemandStatus } from '../api/types.ts';
+import type { AccountRole, ApplicationStatus, DemandStatus, SupportStatus } from '../api/types.ts';
 
 /** Mirrors `server/auth/roles.ts` — keep the wording identical to the backend. */
 export const ROLE_LABEL: Record<AccountRole, string> = {
@@ -57,6 +57,12 @@ export const CATEGORY_LABEL: Record<string, string> = {
   invitations: 'دعوات وهدايا تذكارية',
   parking: 'تنظيم مواقف وحشود',
   condolence: 'عزاء وتجهيز مجالس',
+};
+
+export const SUPPORT_STATUS_LABEL: Record<SupportStatus, string> = {
+  new: 'جديدة',
+  replied: 'تم الرد',
+  closed: 'مغلقة',
 };
 
 export const AI_PROVIDER_LABEL: Record<string, string> = {

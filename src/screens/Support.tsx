@@ -7,8 +7,8 @@ import { Button, Card, EmptyState, ErrorNote, PageHeader } from '../components/u
 import { Toolbar } from '../components/ui/Table.tsx';
 
 /**
- * Read-only: the backend exposes no write route for support messages, so this
- * screen shows them and hands the operator a way to reply out-of-band.
+ * The plain inbox. Replying and tracking follow-up status (new → replied →
+ * closed) live on the WhatsApp desk (`WhatsApp.tsx`).
  */
 export function Support() {
   const resource = useResource(() => api.list(), []);

@@ -116,13 +116,28 @@ export type CityRequest = {
   updatedAt: string;
 };
 
+/** Where the owner is in following a message up — mirrors `server/support/support-store.ts`. */
+export type SupportStatus = 'new' | 'replied' | 'closed';
+
 export type SupportMessage = {
   id: string;
   name: string;
   email: string;
   phone: string;
   message: string;
+  /** The server backfills 'new' on rows written before statuses existed. */
+  status: SupportStatus;
+  updatedAt?: string;
   createdAt: string;
+};
+
+/** One vendor's linked socials, from `/api/admin/vendor-socials`. */
+export type VendorSocialsRow = {
+  vendorId: string;
+  name: string;
+  email?: string;
+  projectName?: string;
+  socials?: { links?: Array<{ network: string; handle: string }> };
 };
 
 export type MoyasarStatus = {

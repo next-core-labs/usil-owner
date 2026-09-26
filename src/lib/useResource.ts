@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, type Dispatch, type SetStateAction } from 'react';
 import { errorText } from '../api/client.ts';
 
 export type Resource<T> = {
@@ -8,8 +8,9 @@ export type Resource<T> = {
   loading: boolean;
   refreshing: boolean;
   reload: () => Promise<void>;
-  /** Apply a local edit after a successful write, instead of refetching. */
-  set: (next: T) => void;
+  /** Apply a local edit after a successful write, instead of refetching. Pass an
+   *  updater when writes can overlap, so one does not clobber another. */
+  set: Dispatch<SetStateAction<T | null>>;
 };
 
 /**

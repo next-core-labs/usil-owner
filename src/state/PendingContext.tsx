@@ -1,11 +1,11 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { couriers, vendorApplications } from '../api/endpoints.ts';
+import { couriers, support, vendorApplications } from '../api/endpoints.ts';
 
 /**
  * The "what needs me" counts behind the sidebar badges. Kept in one place so
  * approving an application updates the badge without every screen refetching.
  */
-export type PendingCounts = { vendors: number; couriers: number };
+export type PendingCounts = { vendors: number; couriers: number; support: number };
 
 type PendingApi = PendingCounts & { refresh: () => void };
 
@@ -14,18 +14,20 @@ const PendingContext = createContext<PendingApi | null>(null);
 const POLL_MS = 60_000;
 
 export function PendingProvider({ children }: { children: ReactNode }) {
-  const [counts, setCounts] = useState<PendingCounts>({ vendors: 0, couriers: 0 });
+  const [counts, setCounts] = useState<PendingCounts>({ vendors: 0, couriers: 0, support: 0 });
 
   const load = useCallback(async () => {
     // A failure here is invisible on purpose: a stale badge must never take the
     // dashboard down, and the screen itself reports the real error.
-    const [vendorRows, courierRows] = await Promise.all([
+    const [vendorRows, courierRows, supportRows] = await Promise.all([
       vendorApplications.list().catch(() => []),
       couriers.list().catch(() => []),
+      support.list().catch(() => []),
     ]);
     setCounts({
       vendors: vendorRows.filter((row) => row.status === 'pending').length,
       couriers: courierRows.filter((row) => row.status === 'pending').length,
+      support: supportRows.filter((row) => row.status === 'new').length,
     });
   }, []);
 

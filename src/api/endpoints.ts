@@ -13,9 +13,11 @@ import type {
   PublicUser,
   SeoSettings,
   SupportMessage,
+  SupportStatus,
   VendorApplication,
   VendorHub,
   VendorListing,
+  VendorSocialsRow,
 } from './types.ts';
 
 type Listed<T> = { data: T[] };
@@ -111,8 +113,17 @@ export const cityRequests = {
     api.patch<Wrapped<CityRequest>>(`/api/admin/city-requests/${encodeURIComponent(id)}`, { status }),
 };
 
+export const vendorSocials = {
+  list: () => api.get<Listed<VendorSocialsRow>>('/api/admin/vendor-socials').then((r) => r.data),
+};
+
 export const support = {
   list: () => api.get<Listed<SupportMessage>>('/api/admin/support-messages').then((r) => r.data),
+  /** The updated row comes back under `message`, not `data`. */
+  setStatus: (id: string, status: SupportStatus) =>
+    api
+      .patch<{ message: SupportMessage }>(`/api/admin/support-messages/${encodeURIComponent(id)}`, { status })
+      .then((r) => r.message),
 };
 
 export const moyasar = {
