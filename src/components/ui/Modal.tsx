@@ -23,6 +23,11 @@ export function Modal({
   const panelRef = useRef<HTMLDivElement>(null);
   const titleId = useId();
   const descId = useId();
+  // Callers pass an inline onClose, so it is a new function on every render.
+  // Reading it through a ref keeps the effect below from re-running on each
+  // keystroke — that re-run stole focus from inputs and closed the phone keyboard.
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
   useEffect(() => {
     if (!open) return;
@@ -33,7 +38,7 @@ export function Modal({
 
     const onKey = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        onClose();
+        onCloseRef.current();
         return;
       }
       // Trap Tab inside the panel — without this, focus walks onto the page
@@ -75,7 +80,7 @@ export function Modal({
         opener.focus();
       }
     };
-  }, [open, onClose]);
+  }, [open]);
 
   if (!open) return null;
 
@@ -93,7 +98,7 @@ export function Modal({
         aria-labelledby={titleId}
         aria-describedby={description ? descId : undefined}
         tabIndex={-1}
-        className="rise max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-t-2xl border border-line bg-surface shadow-[var(--shadow-pop)] outline-none sm:rounded-2xl"
+        className="rise max-h-[92dvh] w-full max-w-lg overflow-y-auto rounded-t-2xl border border-line bg-surface shadow-[var(--shadow-pop)] outline-none sm:rounded-2xl"
       >
         <header className="flex items-start justify-between gap-4 border-b border-line p-5">
           <div>

@@ -147,7 +147,7 @@ export function Badge({
 /* ── Form controls ──────────────────────────────────────────────────── */
 
 const FIELD_BASE =
-  'w-full rounded-lg border border-line-strong bg-surface px-3 text-sm text-ink placeholder:text-ink-muted transition-colors hover:border-[var(--axis)] focus:border-accent focus:outline-none disabled:opacity-60';
+  'w-full rounded-lg border border-line-strong bg-surface px-3 text-base text-ink sm:text-sm placeholder:text-ink-muted transition-colors hover:border-[var(--axis)] focus:border-accent focus:outline-none disabled:opacity-60';
 
 export function Field({
   label,
