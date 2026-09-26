@@ -14,6 +14,7 @@ import { Couriers } from './screens/Couriers.tsx';
 import { Users } from './screens/Users.tsx';
 import { CityRequests } from './screens/CityRequests.tsx';
 import { Support } from './screens/Support.tsx';
+import { WhatsApp } from './screens/WhatsApp.tsx';
 import { Payments } from './screens/Payments.tsx';
 import { Integrations } from './screens/Integrations.tsx';
 import { Seo } from './screens/Seo.tsx';
@@ -37,6 +38,8 @@ function Screen() {
       return <CityRequests />;
     case 'support':
       return <Support />;
+    case 'whatsapp':
+      return <WhatsApp />;
     case 'payments':
       return <Payments />;
     case 'integrations':

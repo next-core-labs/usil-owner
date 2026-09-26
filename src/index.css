@@ -43,6 +43,11 @@
   --serious-wash: rgba(236, 131, 90, 0.14);
   --critical-wash: rgba(208, 59, 59, 0.12);
 
+  /* WhatsApp brand green, deepened on light so white text clears 4.5:1. */
+  --whatsapp: #0b7a3e;
+  --whatsapp-hover: #096a36;
+  --whatsapp-ink: #ffffff;
+
   --shadow-card: 0 1px 2px rgba(11, 11, 11, 0.04), 0 8px 24px -12px rgba(11, 11, 11, 0.12);
   --shadow-pop: 0 16px 48px -12px rgba(11, 11, 11, 0.24);
 }
@@ -72,6 +77,10 @@
     --series-2: #d95926;
     --series-3: #199e70;
 
+    --whatsapp: #25d366;
+    --whatsapp-hover: #4adc80;
+    --whatsapp-ink: #062a14;
+
     --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px -12px rgba(0, 0, 0, 0.6);
     --shadow-pop: 0 16px 48px -12px rgba(0, 0, 0, 0.8);
   }
@@ -100,6 +109,10 @@
   --series-2: #d95926;
   --series-3: #199e70;
 
+  --whatsapp: #25d366;
+  --whatsapp-hover: #4adc80;
+  --whatsapp-ink: #062a14;
+
   --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px -12px rgba(0, 0, 0, 0.6);
   --shadow-pop: 0 16px 48px -12px rgba(0, 0, 0, 0.8);
 }
@@ -121,6 +134,9 @@
   --color-warning: var(--warning);
   --color-serious: var(--serious);
   --color-critical: var(--critical);
+  --color-whatsapp: var(--whatsapp);
+  --color-whatsapp-hover: var(--whatsapp-hover);
+  --color-whatsapp-ink: var(--whatsapp-ink);
   --font-sans: system-ui, -apple-system, 'Segoe UI', sans-serif;
 }
 
