@@ -43,7 +43,7 @@ src/
     charts/     AreaChart, BarChart, SplitBar, Sparkline — hand-rolled SVG/CSS
     layout/     Shell (sidebar + topbar), nav definition
   screens/      one file per section
-  lib/          format (Arabic + SAR), router (hash), theme, useResource
+  lib/          format (Arabic + SAR), router (hash), theme, useResource, usePoll
 ```
 
 ### Screens → endpoints
@@ -59,6 +59,7 @@ src/
 | الحسابات | `/api/admin/users` (list/create/patch/delete) |
 | طلبات المدن | `/api/admin/city-requests` (+ PATCH status) |
 | رسائل الدعم | `GET /api/admin/support-messages` (read-only — no write route exists) |
+| المحادثات | `GET/POST /api/chats`, `GET /api/chats/unread` (sidebar badge), `GET /api/chats/:id` (+ `?after=` for polling), `POST /api/chats/:id/{messages,read}`; vendor picker from `/api/admin/users` + `/api/admin/vendor-hubs` |
 | المدفوعات | `GET/PUT /api/admin/moyasar` |
 | الذكاء الاصطناعي | `GET/PUT /api/admin/integrations`, `POST /api/admin/integrations/test` |
 | الظهور والفهرسة | `GET/PUT /api/admin/seo` |

@@ -215,3 +215,39 @@ export type CourierAccountOutcome =
   | { status: 'protected_role'; userId: string; role: AccountRole }
   | { status: 'not_found'; userId: string }
   | { status: 'not_linked' };
+
+/**
+ * In-app chat, mirrored from `server/chat/chat-store.ts`. The owner side only
+ * ever sees `vendor_owner` threads, and every admin reads the same one per
+ * vendor — it is a shared inbox, so `unread` is the team's, not one admin's.
+ */
+export type ChatSide = 'client' | 'vendor' | 'owner';
+
+/** What a message is about — shown above it as «بخصوص: …». */
+export type ChatContext = { type: 'listing' | 'booking'; id: string; title: string };
+
+export type ChatMessage = {
+  id: string;
+  /** Position in its thread, 1-based and never reused. */
+  seq: number;
+  side: ChatSide;
+  senderId: string;
+  /** For owner-side messages, the admin who answered. */
+  senderName: string;
+  body: string;
+  context?: ChatContext;
+  createdAt: string;
+};
+
+type ConversationBase = {
+  id: string;
+  kind: 'vendor_owner';
+  vendorId: string;
+  vendorName: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type ConversationSummary = ConversationBase & { lastMessage: ChatMessage | null; unread: number };
+
+export type Conversation = ConversationBase & { messages: ChatMessage[] };

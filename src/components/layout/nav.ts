@@ -7,6 +7,7 @@ import {
   LifeBuoy,
   MapPin,
   MessageCircle,
+  MessagesSquare,
   Package,
   Search,
   Truck,
@@ -20,7 +21,7 @@ export type NavItem = {
   label: string;
   icon: LucideIcon;
   /** Which pending counter, if any, badges this item. */
-  badge?: 'vendors' | 'couriers' | 'support';
+  badge?: 'vendors' | 'couriers' | 'support' | 'chats';
 };
 
 export type NavGroup = { title: string; items: NavItem[] };
@@ -34,6 +35,7 @@ export const NAV: NavGroup[] = [
       { route: 'city-requests', label: 'طلبات المدن', icon: MapPin },
       { route: 'support', label: 'رسائل الدعم', icon: LifeBuoy },
       { route: 'whatsapp', label: 'واتساب', icon: MessageCircle, badge: 'support' },
+      { route: 'chats', label: 'المحادثات', icon: MessagesSquare, badge: 'chats' },
     ],
   },
   {
