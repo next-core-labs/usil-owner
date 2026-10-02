@@ -2,7 +2,10 @@ import { api } from './client.ts';
 import type {
   AccountRole,
   AiProviderId,
+  ChatMessage,
   CityRequest,
+  Conversation,
+  ConversationSummary,
   CourierAccountOutcome,
   CourierApplication,
   DemandStatus,
@@ -124,6 +127,28 @@ export const support = {
     api
       .patch<{ message: SupportMessage }>(`/api/admin/support-messages/${encodeURIComponent(id)}`, { status })
       .then((r) => r.message),
+};
+
+export const chats = {
+  /** Newest activity first. */
+  list: () => api.get<Listed<ConversationSummary>>('/api/chats').then((r) => r.data),
+  unread: () => api.get<Wrapped<{ count: number }>>('/api/chats/unread').then((r) => r.data.count),
+  /**
+   * There are no empty threads: this starts the thread with its first message,
+   * or appends to the one the team already has with that vendor.
+   */
+  start: (vendorId: string, body: string) =>
+    api.post<Wrapped<Conversation>>('/api/chats', { vendorId, body }).then((r) => r.data),
+  /** With `after`, only newer messages come back; an id the server no longer has returns them all. */
+  get: (id: string, after?: string) =>
+    api
+      .get<Wrapped<Conversation>>(
+        `/api/chats/${encodeURIComponent(id)}${after ? `?after=${encodeURIComponent(after)}` : ''}`,
+      )
+      .then((r) => r.data),
+  send: (id: string, body: string) =>
+    api.post<Wrapped<ChatMessage>>(`/api/chats/${encodeURIComponent(id)}/messages`, { body }).then((r) => r.data),
+  markRead: (id: string) => api.post<unknown>(`/api/chats/${encodeURIComponent(id)}/read`),
 };
 
 export const moyasar = {

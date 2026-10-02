@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode, SelectHTMLAttributes, TextareaHTMLAttributes } from 'react';
+import type { ButtonHTMLAttributes, ComponentProps, InputHTMLAttributes, ReactNode, SelectHTMLAttributes } from 'react';
 import { ChevronDown, Loader2 } from 'lucide-react';
 
 /* ── Button ─────────────────────────────────────────────────────────── */
@@ -171,7 +171,8 @@ export function Input({ className = '', ...rest }: InputHTMLAttributes<HTMLInput
   return <input className={`${FIELD_BASE} h-10 ${className}`} {...rest} />;
 }
 
-export function Textarea({ className = '', ...rest }: TextareaHTMLAttributes<HTMLTextAreaElement>) {
+/** Takes a `ref` (a plain prop in React 19) so a composer can keep focus after sending. */
+export function Textarea({ className = '', ...rest }: ComponentProps<'textarea'>) {
   return <textarea className={`${FIELD_BASE} py-2 leading-6 ${className}`} {...rest} />;
 }
 
