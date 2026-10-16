@@ -27,10 +27,11 @@ npm run preview   # serve the build on 5180
 
 ## Why a Vite proxy
 
-The session is an HttpOnly `midyaf_sid` cookie with `SameSite=Lax`. Dev proxies
+The session is an HttpOnly `usil_sid` cookie (host-only, so each console keeps its own sign-in) with `SameSite=Lax`. Dev proxies
 `/api` and `/uploads` to the backend so the browser treats everything as one
-origin and the cookie is sent without any CORS or cookie-domain work. In
-production, serve this build behind the same hostname as the API.
+origin and the cookie is sent without any CORS or cookie-domain work. In production the same holds on Cloudflare: `npm run deploy` publishes this
+build to `owner.usil.app` as a Worker whose `/api/*` and `/uploads/*` go to the
+`usil-backend` Worker over a service binding (`wrangler.jsonc`, `worker/index.ts`).
 
 ## Layout
 

@@ -99,6 +99,11 @@ export function Listings() {
           <div className="min-w-0">
             <p className="truncate font-medium text-ink">{row.title}</p>
             <p className="truncate text-xs text-ink-muted">{row.vendorName || '—'}</p>
+            {row.vendorPending ? (
+              <span className="mt-1 inline-block">
+                <Badge tone="warning">غير منشور — المورّد قيد المراجعة</Badge>
+              </span>
+            ) : null}
           </div>
         </div>
       ),

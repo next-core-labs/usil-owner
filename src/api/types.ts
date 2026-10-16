@@ -37,6 +37,14 @@ export type PlatformBooking = {
   moyasarInvoiceId?: string;
   moyasarPaymentId?: string;
   paymentUrl?: string;
+  /** Set when the order was cancelled or rejected; `refundHalalas` is what is owed back. */
+  cancellation?: {
+    cancelledBy: 'client' | 'vendor' | 'admin';
+    refundPercent: number;
+    refundHalalas: number;
+    refundStatus: 'pending' | 'none' | 'not_applicable';
+    note: string;
+  };
 };
 
 export type ApplicationStatus = 'pending' | 'approved' | 'rejected';
@@ -62,6 +70,12 @@ export type VendorApplication = {
   reviewedAt?: string;
   reviewedBy?: string;
   rejectReason?: string;
+  /** `quick`: signed up in the vendor console and completed the file from the dashboard. */
+  signup?: 'quick';
+  /** Products in the applicant's workspace — reviewable under «المنتجات» before approval. */
+  listingCount?: number;
+  /** What still blocks approval (`missingForApproval` on the server). */
+  missing?: Array<{ key: string; label: string }>;
 };
 
 export type CourierApplication = {
@@ -88,6 +102,8 @@ export type VendorListing = {
   id: string;
   vendorId: string;
   vendorName?: string;
+  /** The vendor is still awaiting approval, so this product is not public yet. */
+  vendorPending?: boolean;
   title: string;
   category: string;
   shortDesc?: string;
