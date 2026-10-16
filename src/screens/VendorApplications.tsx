@@ -1,12 +1,13 @@
 import { useMemo, useState } from 'react';
-import { Building2, Check, CheckCircle2, CircleAlert, Eye, X } from 'lucide-react';
+import { Building2, Check, CheckCircle2, CircleAlert, Eye, Package, X } from 'lucide-react';
 import { vendorApplications as api } from '../api/endpoints.ts';
 import type { ApplicationStatus, VendorApplication } from '../api/types.ts';
 import { errorText } from '../api/client.ts';
 import { useResource } from '../lib/useResource.ts';
 import { useToast } from '../state/ToastContext.tsx';
 import { usePending } from '../state/PendingContext.tsx';
-import { dateTime } from '../lib/format.ts';
+import { count, dateTime } from '../lib/format.ts';
+import { navigate } from '../lib/router.ts';
 import { APPLICATION_STATUS_LABEL, FULFILLMENT_LABEL, labelFor } from '../lib/labels.ts';
 import { Badge, Button, Card, EmptyState, ErrorNote, Field, PageHeader, Textarea, type Tone } from '../components/ui/primitives.tsx';
 import { DataTable, FilterTabs, Toolbar, type Column } from '../components/ui/Table.tsx';
@@ -23,6 +24,29 @@ export function StatusBadge({ status }: { status: ApplicationStatus }) {
     <Badge tone={TONE[status]} icon={status === 'approved' ? <CheckCircle2 size={13} /> : <CircleAlert size={13} />}>
       {APPLICATION_STATUS_LABEL[status]}
     </Badge>
+  );
+}
+
+/** Pending rows only: approval is refused until nothing is missing. */
+function missingOf(row: VendorApplication) {
+  return row.status === 'pending' ? row.missing || [] : [];
+}
+
+function FileBadge({ row }: { row: VendorApplication }) {
+  const missing = missingOf(row);
+  return (
+    <div className="space-y-1">
+      {row.status !== 'pending' ? null : missing.length ? (
+        <Badge tone="warning" icon={<CircleAlert size={13} />}>
+          ناقص {count(missing.length)}
+        </Badge>
+      ) : (
+        <Badge tone="good" icon={<CheckCircle2 size={13} />}>
+          مكتمل
+        </Badge>
+      )}
+      <p className="tabular text-xs text-ink-muted">{count(row.listingCount ?? 0)} منتج</p>
+    </div>
   );
 }
 
@@ -124,7 +148,7 @@ export function VendorApplications() {
             {row.email}
           </p>
           <p className="tabular text-xs text-ink-muted" dir="ltr">
-            {row.phone}
+            {row.phone || '—'}
           </p>
         </div>
       ),
@@ -142,6 +166,7 @@ export function VendorApplications() {
         </div>
       ),
     },
+    { key: 'file', header: 'الملف', render: (row) => <FileBadge row={row} /> },
     { key: 'created', header: 'التاريخ', render: (row) => <span className="text-[13px] text-ink-secondary">{dateTime(row.createdAt)}</span> },
     { key: 'status', header: 'الحالة', render: (row) => <StatusBadge status={row.status} /> },
     {
@@ -152,7 +177,14 @@ export function VendorApplications() {
           <Button variant="ghost" size="sm" aria-label="عرض التفاصيل" title="تفاصيل" onClick={() => setDetail(row)} icon={<Eye size={15} />} />
           {row.status === 'pending' ? (
             <>
-              <Button variant="secondary" size="sm" onClick={() => setApproving(row)} icon={<Check size={15} />}>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => setApproving(row)}
+                icon={<Check size={15} />}
+                disabled={missingOf(row).length > 0}
+                title={missingOf(row).length ? 'الملف ناقص — افتح التفاصيل' : undefined}
+              >
                 اعتماد
               </Button>
               <Button variant="danger" size="sm" onClick={() => setRejecting(row)} icon={<X size={15} />}>
@@ -169,7 +201,7 @@ export function VendorApplications() {
     <>
       <PageHeader
         title="طلبات المورّدين"
-        subtitle="اعتماد الطلب ينشئ حساب المورّد ومساحة عمله وينشر منتجه في السوق."
+        subtitle="المورّد يدخل لوحته ويضيف منتجاته فور التسجيل. اعتماده ينشر متجره ومنتجاته في السوق."
         action={
           <Button size="sm" onClick={() => void resource.reload()} busy={resource.refreshing}>
             تحديث
@@ -214,18 +246,38 @@ export function VendorApplications() {
         title={detail?.projectName || ''}
         description="بيانات الطلب كما أرسلها المورّد."
       >
+        {detail && missingOf(detail).length ? (
+          <div className="mb-4 rounded-lg border border-[color-mix(in_srgb,var(--warning)_40%,transparent)] bg-[var(--warning-wash)] px-3 py-2.5 text-[13px] text-ink">
+            <p className="font-medium">لا يمكن الاعتماد قبل أن يكمل المورّد:</p>
+            <ul className="mt-1 list-disc space-y-0.5 ps-5">
+              {missingOf(detail).map((item) => (
+                <li key={item.key}>{item.label}</li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+        {detail ? (
+          <div className="mb-4 flex items-center justify-between gap-3 rounded-lg border border-line bg-sunken px-3 py-2.5 text-[13px]">
+            <span className="text-ink">
+              {count(detail.listingCount ?? 0)} منتج في مساحة المورّد
+            </span>
+            <Button size="sm" variant="ghost" icon={<Package size={14} />} onClick={() => navigate('listings')}>
+              راجع المنتجات
+            </Button>
+          </div>
+        ) : null}
         {detail ? (
           <dl className="space-y-3 text-sm">
             {[
               ['مقدّم الطلب', `${detail.firstName} ${detail.fatherName} ${detail.familyName}`.trim()],
               ['نوع النشاط', detail.projectType],
               ['البريد', detail.email],
-              ['الجوال', detail.phone],
+              ['الجوال', detail.phone || '—'],
               ['السجل التجاري', detail.commercialRegister || '—'],
-              ['الهوية الوطنية', detail.nationalId],
-              ['البنك', detail.bankName],
-              ['الآيبان', detail.iban],
-              ['اسم صاحب الحساب', detail.accountHolderName],
+              ['الهوية الوطنية', detail.nationalId || '—'],
+              ['البنك', detail.bankName || '—'],
+              ['الآيبان', detail.iban || '—'],
+              ['اسم صاحب الحساب', detail.accountHolderName || '—'],
               ['تاريخ الطلب', dateTime(detail.createdAt)],
               detail.reviewedBy ? ['روجع بواسطة', `${detail.reviewedBy} — ${dateTime(detail.reviewedAt)}`] : null,
               detail.rejectReason ? ['سبب الرفض', detail.rejectReason] : null,

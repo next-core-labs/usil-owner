@@ -42,6 +42,17 @@ function lastDays(days: number): string[] {
 }
 
 /** Paid revenue per day. Unpaid bookings are demand, not money. */
+/** Statuses that ended an order without it happening — nothing more will be collected. */
+const ENDED_STATUSES = new Set(['ملغي', 'مرفوض من المورّد']);
+
+/** What a paid order leaves with Usil once any refund it is owed goes back. */
+function keptAmount(row: PlatformBooking): number {
+  if (row.paymentStatus !== 'paid') return 0;
+  const total = Number(row.totalAmount) || 0;
+  const owed = row.cancellation?.refundStatus === 'pending' ? (Number(row.cancellation.refundHalalas) || 0) / 100 : 0;
+  return Math.max(0, total - owed);
+}
+
 function revenueTrend(rows: PlatformBooking[]): AreaPoint[] {
   const buckets = new Map<string, number>(lastDays(TREND_DAYS).map((key) => [key, 0]));
   for (const row of rows) {
@@ -50,7 +61,7 @@ function revenueTrend(rows: PlatformBooking[]): AreaPoint[] {
     if (!created) continue;
     const key = dayKey(created);
     if (!buckets.has(key)) continue;
-    buckets.set(key, (buckets.get(key) || 0) + (Number(row.totalAmount) || 0));
+    buckets.set(key, (buckets.get(key) || 0) + keptAmount(row));
   }
   return Array.from(buckets.entries()).map(([key, value]) => ({ key, label: dayLabel(key), value }));
 }
@@ -75,9 +86,10 @@ export function Overview() {
     const { bookingRows, vendorRows, courierRows, userRows, listingRows } = resource.data;
 
     const paid = bookingRows.filter((row) => row.paymentStatus === 'paid');
-    const paidRevenue = paid.reduce((sum, row) => sum + (Number(row.totalAmount) || 0), 0);
+    // Refunds still owed are not revenue, and a cancelled or rejected unpaid order will never be paid.
+    const paidRevenue = paid.reduce((sum, row) => sum + keptAmount(row), 0);
     const pipeline = bookingRows
-      .filter((row) => row.paymentStatus !== 'paid')
+      .filter((row) => row.paymentStatus !== 'paid' && !ENDED_STATUSES.has(row.status))
       .reduce((sum, row) => sum + (Number(row.totalAmount) || 0), 0);
 
     const byStatus = new Map<string, number>();
