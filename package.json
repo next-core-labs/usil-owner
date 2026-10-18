@@ -10,6 +10,7 @@
     "cf:dev": "npm run build && wrangler dev",
     "deploy": "npm run build && wrangler deploy",
     "lint": "tsc --noEmit",
+    "test": "node --test src/lib/sheet.test.ts",
     "clean": "rm -rf dist"
   },
   "dependencies": {

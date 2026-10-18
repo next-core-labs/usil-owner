@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { auth } from '../api/endpoints.ts';
-import { errorText } from '../api/client.ts';
+import { errorText, setUnauthorizedHandler } from '../api/client.ts';
 import type { PublicUser } from '../api/types.ts';
 
 type SessionState = {
@@ -12,6 +12,8 @@ type SessionState = {
 };
 
 const SessionContext = createContext<SessionState | null>(null);
+
+const SESSION_EXPIRED = 'انتهت الجلسة. سجّل الدخول من جديد.';
 
 /**
  * `admin` and `accounts_manager` are the two supervisor roles the backend lets
@@ -44,6 +46,15 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     return () => {
       active = false;
     };
+  }, []);
+
+  // Any 401 outside sign-in means the cookie is dead: back to the login screen.
+  useEffect(() => {
+    setUnauthorizedHandler(() => {
+      setUser(null);
+      setError(SESSION_EXPIRED);
+    });
+    return () => setUnauthorizedHandler(null);
   }, []);
 
   const signIn = useCallback(async (identifier: string, password: string, remember: boolean) => {

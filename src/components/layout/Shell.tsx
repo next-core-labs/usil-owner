@@ -45,6 +45,8 @@ function ThemeToggle() {
 function NavList({ onNavigate }: { onNavigate?: () => void }) {
   const route = useRoute();
   const pending = usePending();
+  const { user } = useSession();
+  const isAdmin = user?.role === 'admin';
 
   return (
     <nav className="flex-1 space-y-6 overflow-y-auto px-3 py-4">
@@ -52,7 +54,7 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
         <div key={group.title}>
           <p className="mb-1.5 px-3 text-[11px] font-semibold tracking-wide text-ink-muted">{group.title}</p>
           <ul className="space-y-0.5">
-            {group.items.map((item) => {
+            {group.items.filter((item) => isAdmin || !item.adminOnly).map((item) => {
               const Icon = item.icon;
               const active = route === item.route;
               const badge = item.badge ? pending[item.badge] : 0;

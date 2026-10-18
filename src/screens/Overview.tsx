@@ -92,6 +92,10 @@ export function Overview() {
       .filter((row) => row.paymentStatus !== 'paid' && !ENDED_STATUSES.has(row.status))
       .reduce((sum, row) => sum + (Number(row.totalAmount) || 0), 0);
 
+    const applicantEmails = new Set(
+      vendorRows.filter((row) => row.status === 'pending').map((row) => row.email.trim().toLowerCase()),
+    );
+
     const byStatus = new Map<string, number>();
     for (const row of bookingRows) {
       const key = row.status || 'غير محدد';
@@ -110,8 +114,12 @@ export function Overview() {
       pendingVendors: vendorRows.filter((row) => row.status === 'pending'),
       pendingCouriers: courierRows.filter((row) => row.status === 'pending'),
       vendorCount: userRows.filter((row) => row.role === 'vendor').length,
-      clientCount: userRows.filter((row) => row.role === 'client').length,
-      listingCount: listingRows.length,
+      // A pending vendor applicant still has a client account; they are not a customer.
+      clientCount: userRows.filter(
+        (row) => row.role === 'client' && !applicantEmails.has(row.email.trim().toLowerCase()),
+      ).length,
+      // A pending vendor's products are saved but not public until approval.
+      listingCount: listingRows.filter((row) => !row.vendorPending).length,
     };
   }, [resource.data]);
 

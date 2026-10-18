@@ -132,6 +132,97 @@ export type CityRequest = {
   updatedAt: string;
 };
 
+/* ── WhatsApp (shared inbox on the Cloud API) — mirrors server/whatsapp ── */
+
+export type WaSettings = {
+  configured: boolean;
+  phoneNumberId: string;
+  businessAccountId: string;
+  tokenMasked: string;
+  appSecretSet: boolean;
+  verifyToken: string;
+  webhookUrl: string;
+  displayPhone?: string;
+  verifiedName?: string;
+  graphVersion?: string;
+};
+
+export type WaSettingsDraft = {
+  accessToken?: string;
+  phoneNumberId?: string;
+  businessAccountId?: string;
+  appSecret?: string;
+};
+
+export type WaPerson = { id: string; name: string };
+
+export type WaConversation = {
+  waId: string;
+  name: string;
+  phone: string;
+  lastMessage: { text: string; type: string; direction: 'in' | 'out'; at: string } | null;
+  lastInboundAt: string | null;
+  /** WhatsApp only allows free-form replies within 24h of the customer's last message. */
+  windowOpen: boolean;
+  unread: number;
+  assignedTo: WaPerson | null;
+  status: 'open' | 'closed';
+  updatedAt: string;
+};
+
+export type WaMessageStatus = 'received' | 'sending' | 'sent' | 'delivered' | 'read' | 'failed';
+
+export type WaMessage = {
+  id: string;
+  wamid: string;
+  direction: 'in' | 'out';
+  type: string;
+  text: string;
+  caption?: string;
+  mediaId?: string;
+  mimeType?: string;
+  fileName?: string;
+  location: { latitude: number; longitude: number; name?: string; address?: string } | null;
+  status: WaMessageStatus;
+  error: string | null;
+  at: string;
+  sentBy: WaPerson | null;
+  via: 'dashboard' | 'phone' | 'customer';
+  template: { name: string; language: string } | null;
+};
+
+export type WaTemplate = { name: string; language: string; category: string; body: string; paramCount: number };
+
+export type WaTeamMember = { id: string; name: string; role: string };
+
+/** Mirrors `server/leads/vendor-leads.ts`. */
+export type LeadStatus = 'new' | 'contacted' | 'interested' | 'joined' | 'declined';
+
+/** A supplier the owner wants to invite — a contact, not an account. */
+export type VendorLead = {
+  id: string;
+  name: string;
+  phone: string;
+  city: string;
+  activity: string;
+  note: string;
+  status: LeadStatus;
+  source: 'import' | 'manual';
+  createdAt: string;
+  updatedAt: string;
+  /** This number already belongs to a vendor account on Usil. */
+  alreadyVendor?: boolean;
+};
+
+export type LeadDraft = { name?: string; phone: string; city?: string; activity?: string; note?: string };
+
+export type LeadImportResult = {
+  added: number;
+  duplicates: number;
+  invalid: Array<{ row: number; phone: string; error: string }>;
+  total: number;
+};
+
 /** Where the owner is in following a message up — mirrors `server/support/support-store.ts`. */
 export type SupportStatus = 'new' | 'replied' | 'closed';
 

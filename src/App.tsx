@@ -13,6 +13,8 @@ import { Listings } from './screens/Listings.tsx';
 import { Couriers } from './screens/Couriers.tsx';
 import { Users } from './screens/Users.tsx';
 import { CityRequests } from './screens/CityRequests.tsx';
+import { VendorLeads } from './screens/VendorLeads.tsx';
+import { WaInbox } from './screens/WaInbox.tsx';
 import { Support } from './screens/Support.tsx';
 import { WhatsApp } from './screens/WhatsApp.tsx';
 import { Chats } from './screens/Chats.tsx';
@@ -29,6 +31,8 @@ function Screen() {
       return <VendorApplications />;
     case 'vendors':
       return <Vendors />;
+    case 'vendor-leads':
+      return <VendorLeads />;
     case 'listings':
       return <Listings />;
     case 'couriers':
@@ -39,6 +43,8 @@ function Screen() {
       return <CityRequests />;
     case 'support':
       return <Support />;
+    case 'wa-inbox':
+      return <WaInbox />;
     case 'whatsapp':
       return <WhatsApp />;
     case 'chats':
