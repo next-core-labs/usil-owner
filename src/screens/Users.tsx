@@ -16,6 +16,16 @@ type Draft = { name: string; email: string; phone: string; password: string; rol
 
 const EMPTY: Draft = { name: '', email: '', phone: '', password: '', role: 'client' };
 
+/** Mirrors `PASSWORD_MIN_LENGTH` in the backend's auth.ts. */
+const PASSWORD_MIN = 8;
+
+/**
+ * Admin and accounts_manager accounts are reserved for «مدير كل الحسابات»: the
+ * server refuses an accounts_manager who creates, edits or deletes one
+ * (`actorMayTouchRole` in server/auth/auth.ts), so the console does not offer it.
+ */
+const PRIVILEGED_ROLES: AccountRole[] = ['admin', 'accounts_manager'];
+
 export function Users() {
   const resource = useResource(() => api.list(), []);
   const toast = useToast();
@@ -30,6 +40,9 @@ export function Users() {
   const [busy, setBusy] = useState(false);
 
   const rows = resource.data ?? [];
+  const actorIsAdmin = actor?.role === 'admin';
+  const mayTouch = (role: AccountRole) => actorIsAdmin || !PRIVILEGED_ROLES.includes(role);
+  const roleOptions = ROLE_OPTIONS.filter(mayTouch);
 
   useEffect(() => {
     if (creating) setDraft(EMPTY);
@@ -51,6 +64,10 @@ export function Users() {
   }, [rows, search, filter]);
 
   async function create() {
+    if (draft.password.length < PASSWORD_MIN) {
+      toast.failure(`الرقم السري ${PASSWORD_MIN} خانات على الأقل.`);
+      return;
+    }
     setBusy(true);
     try {
       const result = await api.create({
@@ -72,6 +89,10 @@ export function Users() {
 
   async function save() {
     if (!editing) return;
+    if (draft.password && draft.password.length < PASSWORD_MIN) {
+      toast.failure(`الرقم السري ${PASSWORD_MIN} خانات على الأقل.`);
+      return;
+    }
     setBusy(true);
     try {
       const patch: Parameters<typeof api.update>[1] = {
@@ -126,12 +147,15 @@ export function Users() {
           <span className="grid size-9 shrink-0 place-items-center overflow-hidden rounded-full bg-sunken text-xs font-semibold text-ink-secondary">
             {row.avatarUrl ? <img src={row.avatarUrl} alt="" className="size-full object-cover" /> : initials(row.name)}
           </span>
-          <div className="min-w-0">
-            <p className="flex items-center gap-1.5 truncate font-medium text-ink">
-              {row.name}
+          {/* A capped width, so a very long name cannot push the other columns off screen. */}
+          <div className="min-w-0 max-w-[16rem]">
+            <p className="flex items-center gap-1.5 font-medium text-ink">
+              <span className="min-w-0 truncate" title={row.name}>
+                {row.name}
+              </span>
               {row.id === actor?.id ? <Badge tone="accent">أنت</Badge> : null}
             </p>
-            <p className="truncate text-xs text-ink-muted" dir="ltr">
+            <p className="truncate text-xs text-ink-muted" dir="ltr" title={row.email}>
               {row.email}
             </p>
           </div>
@@ -156,6 +180,10 @@ export function Users() {
           <Badge tone="good" icon={<BadgeCheck size={13} />}>
             موثّق
           </Badge>
+        ) : !mayTouch(row.role) ? (
+          <Badge tone="warning" icon={<MailWarning size={13} />}>
+            غير موثّق
+          </Badge>
         ) : (
           <button
             type="button"
@@ -172,20 +200,21 @@ export function Users() {
     {
       key: 'actions',
       header: '',
-      render: (row) => (
-        <div className="flex items-center justify-end gap-1">
-          <Button variant="ghost" size="sm" aria-label={`تعديل ${row.name}`} title="تعديل" onClick={() => setEditing(row)} icon={<Pencil size={15} />} />
-          <Button
-            variant="ghost"
-            size="sm"
-            aria-label={`حذف ${row.name}`}
-            title="حذف"
-            disabled={row.id === actor?.id}
-            onClick={() => setRemoving(row)}
-            icon={<Trash2 size={15} />}
-          />
-        </div>
-      ),
+      render: (row) =>
+        mayTouch(row.role) ? (
+          <div className="flex items-center justify-end gap-1">
+            <Button variant="ghost" size="sm" aria-label={`تعديل ${row.name}`} title="تعديل" onClick={() => setEditing(row)} icon={<Pencil size={15} />} />
+            <Button
+              variant="ghost"
+              size="sm"
+              aria-label={`حذف ${row.name}`}
+              title="حذف"
+              disabled={row.id === actor?.id}
+              onClick={() => setRemoving(row)}
+              icon={<Trash2 size={15} />}
+            />
+          </div>
+        ) : null,
     },
   ];
 
@@ -213,7 +242,7 @@ export function Users() {
       </Field>
       <Field
         label="الرقم السري"
-        hint={editing ? 'اتركه فارغاً للإبقاء على الرقم الحالي. الحد الأدنى ٦ خانات.' : 'الحد الأدنى ٦ خانات.'}
+        hint={editing ? 'اتركه فارغاً للإبقاء على الرقم الحالي. الحد الأدنى ٨ خانات.' : 'الحد الأدنى ٨ خانات.'}
       >
         <Input
           type="password"
@@ -223,7 +252,7 @@ export function Users() {
       </Field>
       <Field label="الصلاحية">
         <Select value={draft.role} onChange={(event) => setDraft({ ...draft, role: event.target.value as AccountRole })}>
-          {ROLE_OPTIONS.map((role) => (
+          {roleOptions.map((role) => (
             <option key={role} value={role}>
               {ROLE_LABEL[role]}
             </option>

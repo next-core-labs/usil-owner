@@ -9,6 +9,16 @@ import type {
   CourierAccountOutcome,
   CourierApplication,
   DemandStatus,
+  LeadDraft,
+  LeadImportResult,
+  LeadStatus,
+  VendorLead,
+  WaConversation,
+  WaMessage,
+  WaSettings,
+  WaSettingsDraft,
+  WaTeamMember,
+  WaTemplate,
   HealthPayload,
   IntegrationsPayload,
   MoyasarStatus,
@@ -114,6 +124,49 @@ export const cityRequests = {
   list: () => api.get<Listed<CityRequest>>('/api/admin/city-requests').then((r) => r.data),
   setStatus: (id: string, status: DemandStatus) =>
     api.patch<Wrapped<CityRequest>>(`/api/admin/city-requests/${encodeURIComponent(id)}`, { status }),
+};
+
+/** «صندوق واتساب»: Usil's one WhatsApp number, read and answered by the whole team. */
+export const whatsapp = {
+  settings: () => api.get<Wrapped<WaSettings>>('/api/admin/whatsapp/settings').then((r) => r.data),
+  saveSettings: (draft: WaSettingsDraft) =>
+    api.put<Wrapped<WaSettings>>('/api/admin/whatsapp/settings', draft).then((r) => r.data),
+  testSettings: () =>
+    api.post<Wrapped<{ displayPhone: string; verifiedName: string }>>('/api/admin/whatsapp/settings/test').then((r) => r.data),
+  conversations: () => api.get<Listed<WaConversation>>('/api/admin/whatsapp/conversations').then((r) => r.data),
+  unread: () => api.get<Wrapped<{ count: number }>>('/api/admin/whatsapp/unread').then((r) => r.data.count),
+  messages: (waId: string, after?: string) =>
+    api
+      .get<Wrapped<{ conversation: WaConversation; messages: WaMessage[] }>>(
+        `/api/admin/whatsapp/conversations/${encodeURIComponent(waId)}/messages${after ? `?after=${encodeURIComponent(after)}` : ''}`,
+      )
+      .then((r) => r.data),
+  markRead: (waId: string) => api.post<unknown>(`/api/admin/whatsapp/conversations/${encodeURIComponent(waId)}/read`),
+  send: (waId: string, text: string) =>
+    api.post<Wrapped<WaMessage>>(`/api/admin/whatsapp/conversations/${encodeURIComponent(waId)}/messages`, { text }).then((r) => r.data),
+  sendTemplate: (waId: string, name: string, language: string, params: string[]) =>
+    api
+      .post<Wrapped<WaMessage>>(`/api/admin/whatsapp/conversations/${encodeURIComponent(waId)}/template`, { name, language, params })
+      .then((r) => r.data),
+  start: (input: { phone: string; name?: string; template: string; language: string; params: string[] }) =>
+    api.post<Wrapped<{ conversation: WaConversation; message: WaMessage }>>('/api/admin/whatsapp/start', input).then((r) => r.data),
+  update: (waId: string, patch: { assignedTo?: string | null; status?: 'open' | 'closed'; name?: string }) =>
+    api.patch<Wrapped<WaConversation>>(`/api/admin/whatsapp/conversations/${encodeURIComponent(waId)}`, patch).then((r) => r.data),
+  templates: () => api.get<Listed<WaTemplate>>('/api/admin/whatsapp/templates').then((r) => r.data),
+  team: () => api.get<Listed<WaTeamMember>>('/api/admin/whatsapp/team').then((r) => r.data),
+  /** Same-origin, so the session cookie authorises `<img src>` / `<audio src>` directly. */
+  mediaUrl: (mediaId: string) => `/api/admin/whatsapp/media/${encodeURIComponent(mediaId)}`,
+};
+
+/** «أرقام المورّدين»: suppliers to invite, imported from a sheet or added by hand. */
+export const vendorLeads = {
+  list: () => api.get<Listed<VendorLead>>('/api/admin/vendor-leads').then((r) => r.data),
+  importRows: (rows: LeadDraft[]) =>
+    api.post<Wrapped<LeadImportResult>>('/api/admin/vendor-leads/import', { rows }).then((r) => r.data),
+  add: (draft: LeadDraft) => api.post<Wrapped<VendorLead>>('/api/admin/vendor-leads', draft).then((r) => r.data),
+  update: (id: string, patch: { status?: LeadStatus; note?: string }) =>
+    api.patch<Wrapped<VendorLead>>(`/api/admin/vendor-leads/${encodeURIComponent(id)}`, patch).then((r) => r.data),
+  remove: (id: string) => api.delete<unknown>(`/api/admin/vendor-leads/${encodeURIComponent(id)}`),
 };
 
 export const vendorSocials = {

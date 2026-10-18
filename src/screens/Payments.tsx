@@ -67,11 +67,13 @@ export function Payments() {
       {resource.loading ? (
         <Skeleton className="h-64" />
       ) : status ? (
-        <div className="grid gap-6 lg:grid-cols-2">
+        // grid-cols-1 caps the track at the screen width — an `auto` track grows
+        // to the full webhook URL and scrolls the page sideways on a phone.
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <Card>
             <CardHeader title="الحالة الحالية" subtitle="ما يقرأه الخادم الآن" />
             <dl className="space-y-3 text-sm">
-              <div className="flex items-center justify-between gap-3">
+              <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
                 <dt className="text-ink-secondary">البوابة</dt>
                 <dd>
                   {status.configured ? (
@@ -83,7 +85,7 @@ export function Payments() {
                   )}
                 </dd>
               </div>
-              <div className="flex items-center justify-between gap-3">
+              <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
                 <dt className="text-ink-secondary">نموذج البطاقة داخل الصفحة</dt>
                 <dd>
                   {status.form ? (
@@ -93,7 +95,7 @@ export function Payments() {
                   )}
                 </dd>
               </div>
-              <div className="flex items-center justify-between gap-3">
+              <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
                 <dt className="text-ink-secondary">المفتاح السري</dt>
                 <dd className="tabular text-ink" dir="ltr">
                   {status.secretMasked || '—'}
@@ -102,13 +104,13 @@ export function Payments() {
                   </span>
                 </dd>
               </div>
-              <div className="flex items-center justify-between gap-3">
+              <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
                 <dt className="text-ink-secondary">المفتاح العام</dt>
                 <dd className="tabular text-ink" dir="ltr">
                   {status.publishableMasked || '—'}
                 </dd>
               </div>
-              <div className="flex items-center justify-between gap-3">
+              <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
                 <dt className="text-ink-secondary">سر الويبهوك</dt>
                 <dd>
                   {status.webhookSecretSet ? (
@@ -118,7 +120,7 @@ export function Payments() {
                   )}
                 </dd>
               </div>
-              <div className="flex items-center justify-between gap-3">
+              <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
                 <dt className="text-ink-secondary">آخر تحديث</dt>
                 <dd className="text-ink">{status.updatedAt ? dateTime(status.updatedAt) : '—'}</dd>
               </div>

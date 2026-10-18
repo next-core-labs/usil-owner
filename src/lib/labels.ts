@@ -28,6 +28,17 @@ export const DEMAND_STATUS_LABEL: Record<DemandStatus, string> = {
 
 export const DEMAND_STATUSES: DemandStatus[] = ['new', 'contacted', 'matched', 'closed'];
 
+/** Mirrors `LEAD_STATUS_AR` in `server/leads/vendor-leads.ts`. */
+export const LEAD_STATUS_LABEL: Record<import('../api/types.ts').LeadStatus, string> = {
+  new: 'جديد',
+  contacted: 'تم التواصل',
+  interested: 'مهتم',
+  joined: 'انضم',
+  declined: 'غير مهتم',
+};
+
+export const LEAD_STATUSES = ['new', 'contacted', 'interested', 'joined', 'declined'] as const;
+
 /** Mirrors `server/vendors/vendor-listings.ts`. */
 export const FULFILLMENT_LABEL: Record<string, string> = {
   hour: 'يوصل ساعة',

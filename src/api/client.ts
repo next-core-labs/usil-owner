@@ -26,6 +26,18 @@ const UNREADABLE = 'رد الخادم غير مفهوم.';
 
 type Envelope = { success?: boolean; error?: string; message?: string };
 
+/**
+ * Told when a call comes back 401: the session expired or was revoked, so the
+ * session layer can drop to sign-in instead of every screen offering a retry
+ * that can never succeed. `/api/auth/*` is exempt — a wrong password is a 401
+ * the sign-in form reports itself.
+ */
+let onUnauthorized: (() => void) | null = null;
+
+export function setUnauthorizedHandler(handler: (() => void) | null): void {
+  onUnauthorized = handler;
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   let response: Response;
   try {
@@ -38,6 +50,8 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   } catch {
     throw new ApiError(NETWORK_DOWN, 0);
   }
+
+  if (response.status === 401 && !path.startsWith('/api/auth/')) onUnauthorized?.();
 
   const text = await response.text();
   let payload: (Envelope & Record<string, unknown>) | null = null;

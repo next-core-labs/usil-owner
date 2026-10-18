@@ -6,6 +6,7 @@ import { errorText } from '../api/client.ts';
 import { useResource } from '../lib/useResource.ts';
 import { useToast } from '../state/ToastContext.tsx';
 import { dateTime } from '../lib/format.ts';
+import { publicSiteUrl } from '../lib/publicSite.ts';
 import { Button, Card, CardHeader, ErrorNote, Field, Input, PageHeader, Select, Skeleton, Textarea } from '../components/ui/primitives.tsx';
 
 /** Google truncates around these lengths — the counters warn before it bites. */
@@ -59,7 +60,7 @@ export function Seo() {
         action={
           <div className="flex gap-2">
             <a
-              href="/sitemap.xml"
+              href={`${publicSiteUrl()}/sitemap.xml`}
               target="_blank"
               rel="noreferrer noopener"
               className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-line-strong px-3 text-[13px] font-medium text-ink transition-colors hover:bg-sunken"
