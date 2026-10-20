@@ -19,6 +19,7 @@ import { Support } from './screens/Support.tsx';
 import { WhatsApp } from './screens/WhatsApp.tsx';
 import { Chats } from './screens/Chats.tsx';
 import { Payments } from './screens/Payments.tsx';
+import { Payouts } from './screens/Payouts.tsx';
 import { Integrations } from './screens/Integrations.tsx';
 import { Seo } from './screens/Seo.tsx';
 
@@ -51,6 +52,8 @@ function Screen() {
       return <Chats />;
     case 'payments':
       return <Payments />;
+    case 'payouts':
+      return <Payouts />;
     case 'integrations':
       return <Integrations />;
     case 'seo':

@@ -22,6 +22,8 @@ import type {
   HealthPayload,
   IntegrationsPayload,
   MoyasarStatus,
+  PayoutRequest,
+  PayoutStatus,
   PlatformBooking,
   PublicUser,
   SeoSettings,
@@ -240,4 +242,11 @@ export const seo = {
   read: () => api.get<Wrapped<SeoSettings>>('/api/admin/seo').then((r) => r.data),
   save: (input: Partial<SeoSettings>) =>
     api.put<Wrapped<SeoSettings>>('/api/admin/seo', input).then((r) => r.data),
+};
+
+export const payouts = {
+  list: () => api.get<Listed<PayoutRequest>>('/api/admin/payouts').then((r) => r.data),
+  /** `paid` requires the bank transfer `reference`. */
+  decide: (id: string, input: { status: Exclude<PayoutStatus, 'requested'>; reference?: string; adminNote?: string }) =>
+    api.patch<Wrapped<PayoutRequest>>(`/api/admin/payouts/${encodeURIComponent(id)}`, input).then((r) => r.data),
 };

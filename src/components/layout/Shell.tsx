@@ -8,6 +8,7 @@ import { useSession } from '../../state/SessionContext.tsx';
 import { ROLE_LABEL } from '../../lib/labels.ts';
 import { count, initials } from '../../lib/format.ts';
 import { Button } from '../ui/primitives.tsx';
+import { UsilMark } from '../ui/UsilMark.tsx';
 
 const THEMES: Array<{ value: Theme; label: string; icon: typeof Sun }> = [
   { value: 'light', label: 'فاتح', icon: Sun },
@@ -94,9 +95,7 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
 function Brand() {
   return (
     <div className="flex items-center gap-2.5 border-b border-line px-5 py-4">
-      <span className="grid size-8 place-items-center rounded-lg bg-accent text-sm font-bold text-accent-ink">
-        يو
-      </span>
+      <UsilMark className="size-8" />
       <div className="leading-tight">
         <p className="text-sm font-semibold text-ink">يوصل</p>
         <p className="text-[11px] text-ink-muted">لوحة المالك</p>

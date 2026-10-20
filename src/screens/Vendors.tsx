@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
-import { Store } from 'lucide-react';
+import { ExternalLink, Store } from 'lucide-react';
+import { vendorConsoleUrl } from '../lib/vendorConsole.ts';
 import { vendorHubs as api } from '../api/endpoints.ts';
 import type { VendorHub } from '../api/types.ts';
 import { useResource } from '../lib/useResource.ts';
@@ -47,13 +48,30 @@ export function Vendors() {
     { key: 'listings', header: 'المنتجات', numeric: true, render: (row) => <span>{count(row.listingCount)}</span> },
     { key: 'bookings', header: 'الحجوزات', numeric: true, render: (row) => <span>{count(row.bookingCount)}</span> },
     { key: 'status', header: 'الحالة', render: (row) => <StatusBadge status={row.status} /> },
+    {
+      key: 'console',
+      header: '',
+      width: '170px',
+      render: (row) =>
+        row.status === 'rejected' ? null : (
+          <a
+            href={vendorConsoleUrl(row.vendorId)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex h-8 items-center gap-1.5 whitespace-nowrap rounded-lg border border-line-strong px-2.5 text-[13px] font-medium text-ink hover:bg-sunken"
+          >
+            <ExternalLink size={14} />
+            فتح لوحة المورّد
+          </a>
+        ),
+    },
   ];
 
   return (
     <>
       <PageHeader
         title="ملفات المورّدين"
-        subtitle="كل مورّد وما نشره وما وصله من حجوزات."
+        subtitle="كل مورّد وما نشره وما وصله من حجوزات. «فتح لوحة المورّد» يفتح لوحته في vendor.usil.app لتعمل نيابة عنه."
         action={
           <Button size="sm" onClick={() => void resource.reload()} busy={resource.refreshing}>
             تحديث

@@ -358,3 +358,28 @@ type ConversationBase = {
 export type ConversationSummary = ConversationBase & { lastMessage: ChatMessage | null; unread: number };
 
 export type Conversation = ConversationBase & { messages: ChatMessage[] };
+
+/** A vendor's withdrawal request (`/api/admin/payouts`). Money moves by hand in the bank. */
+export type PayoutStatus = 'requested' | 'approved' | 'paid' | 'rejected';
+
+export type PayoutRequest = {
+  id: string;
+  vendorId: string;
+  vendorName: string;
+  /** The vendor account's email — where the decision notice goes. */
+  vendorEmail: string;
+  /** Riyals. */
+  amount: number;
+  /** `SA` + 22 digits. */
+  iban: string;
+  accountHolder: string;
+  bankName: string;
+  status: PayoutStatus;
+  note: string;
+  adminNote: string;
+  /** Bank transfer reference, set when marked paid. */
+  reference: string;
+  createdAt: string;
+  updatedAt: string;
+  decidedBy: string;
+};

@@ -1,5 +1,6 @@
 import {
   Banknote,
+  HandCoins,
   Bot,
   Building2,
   Contact,
@@ -58,6 +59,7 @@ export const NAV: NavGroup[] = [
     items: [
       { route: 'users', label: 'الحسابات', icon: UserCog },
       { route: 'payments', label: 'المدفوعات', icon: Banknote },
+      { route: 'payouts', label: 'طلبات السحب', icon: HandCoins },
       { route: 'integrations', label: 'الذكاء الاصطناعي', icon: Bot, adminOnly: true },
       { route: 'seo', label: 'الظهور والفهرسة', icon: Search },
     ],
