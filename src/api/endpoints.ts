@@ -27,6 +27,7 @@ import type {
   PlatformBooking,
   PublicUser,
   SeoSettings,
+  SiteAppearance,
   SupportMessage,
   SupportStatus,
   VendorApplication,
@@ -242,6 +243,15 @@ export const seo = {
   read: () => api.get<Wrapped<SeoSettings>>('/api/admin/seo').then((r) => r.data),
   save: (input: Partial<SeoSettings>) =>
     api.put<Wrapped<SeoSettings>>('/api/admin/seo', input).then((r) => r.data),
+};
+
+export const siteAppearance = {
+  read: () => api.get<Wrapped<SiteAppearance>>('/api/site/appearance').then((r) => r.data),
+  save: (input: Pick<SiteAppearance, 'heroCards'>) =>
+    api.put<Wrapped<SiteAppearance>>('/api/admin/site/appearance', input).then((r) => r.data),
+  /** Through the shared upload route; the server keeps only JPG/PNG/WEBP under 5 MB. */
+  uploadHeroImage: (dataUrl: string) =>
+    api.post<{ url?: string }>('/api/uploads', { purpose: 'hero', dataUrl }).then((r) => String(r.url || '')),
 };
 
 export const payouts = {

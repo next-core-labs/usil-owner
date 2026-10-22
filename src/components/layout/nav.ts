@@ -12,6 +12,7 @@ import {
   MessageSquareText,
   MessagesSquare,
   Package,
+  Palette,
   Search,
   Truck,
   UserCog,
@@ -62,6 +63,7 @@ export const NAV: NavGroup[] = [
       { route: 'payouts', label: 'طلبات السحب', icon: HandCoins },
       { route: 'integrations', label: 'الذكاء الاصطناعي', icon: Bot, adminOnly: true },
       { route: 'seo', label: 'الظهور والفهرسة', icon: Search },
+      { route: 'appearance', label: 'مظهر الواجهة', icon: Palette, adminOnly: true },
     ],
   },
 ];

@@ -296,6 +296,21 @@ export type SeoSettings = {
   updatedAt: string;
 };
 
+/** «مظهر الواجهة» — backend: `server/site/site-appearance-store.ts`. */
+export type HeroCard = {
+  /** `/uploads/…`; '' keeps the design photo. */
+  image: string;
+  /** false shows the card as a solid colour. */
+  showImage: boolean;
+  /** `#RRGGBB` ground behind (or instead of) the photo. */
+  color: string;
+};
+
+export type SiteAppearance = {
+  heroCards: HeroCard[];
+  updatedAt: string;
+};
+
 export type HealthPayload = {
   status: string;
   uptime: number;
