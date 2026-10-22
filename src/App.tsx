@@ -22,6 +22,7 @@ import { Payments } from './screens/Payments.tsx';
 import { Payouts } from './screens/Payouts.tsx';
 import { Integrations } from './screens/Integrations.tsx';
 import { Seo } from './screens/Seo.tsx';
+import { Appearance } from './screens/Appearance.tsx';
 
 function Screen() {
   const route = useRoute();
@@ -58,6 +59,8 @@ function Screen() {
       return <Integrations />;
     case 'seo':
       return <Seo />;
+    case 'appearance':
+      return <Appearance />;
     default:
       return <Overview />;
   }
