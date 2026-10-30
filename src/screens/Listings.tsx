@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ImageOff, Package, Pencil } from 'lucide-react';
+import { ImageOff, Package, Pencil, Trash2 } from 'lucide-react';
 import { listings as api } from '../api/endpoints.ts';
 import type { VendorListing } from '../api/types.ts';
 import { errorText } from '../api/client.ts';
@@ -9,7 +9,7 @@ import { count, sar } from '../lib/format.ts';
 import { BOOKING_MODE_LABEL, CATEGORY_LABEL, FULFILLMENT_LABEL, labelFor } from '../lib/labels.ts';
 import { Badge, Button, Card, EmptyState, ErrorNote, Field, Input, PageHeader, Select } from '../components/ui/primitives.tsx';
 import { DataTable, Toolbar, type Column } from '../components/ui/Table.tsx';
-import { Modal } from '../components/ui/Modal.tsx';
+import { ConfirmDialog, Modal } from '../components/ui/Modal.tsx';
 
 const LANES = ['hour', 'same_day', 'tomorrow', 'instant'];
 
@@ -20,6 +20,7 @@ export function Listings() {
   const toast = useToast();
   const [search, setSearch] = useState('');
   const [editing, setEditing] = useState<VendorListing | null>(null);
+  const [removing, setRemoving] = useState<VendorListing | null>(null);
   const [draft, setDraft] = useState<Draft>({ price: '', bookingMode: 'approval', fulfillment: [] });
   const [busy, setBusy] = useState(false);
 
@@ -67,6 +68,21 @@ export function Listings() {
       resource.set(rows.map((row) => (row.id === editing.id ? result.listing : row)));
       toast.success(`حُدّث «${editing.title}».`);
       setEditing(null);
+    } catch (caught) {
+      toast.failure(errorText(caught));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function remove() {
+    if (!removing) return;
+    setBusy(true);
+    try {
+      await api.remove(removing.id);
+      resource.set(rows.filter((row) => row.id !== removing.id));
+      toast.success(`حُذف «${removing.title}».`);
+      setRemoving(null);
     } catch (caught) {
       toast.failure(errorText(caught));
     } finally {
@@ -158,8 +174,16 @@ export function Listings() {
       key: 'actions',
       header: '',
       render: (row) => (
-        <div className="flex justify-end">
+        <div className="flex items-center justify-end gap-1">
           <Button variant="ghost" size="sm" aria-label={`تعديل ${row.title}`} title="تعديل" onClick={() => setEditing(row)} icon={<Pencil size={15} />} />
+          <Button
+            variant="ghost"
+            size="sm"
+            aria-label={`حذف ${row.title}`}
+            title="حذف"
+            onClick={() => setRemoving(row)}
+            icon={<Trash2 size={15} />}
+          />
         </div>
       ),
     },
@@ -256,6 +280,17 @@ export function Listings() {
           </div>
         </fieldset>
       </Modal>
+
+      <ConfirmDialog
+        open={Boolean(removing)}
+        title="حذف المنتج؟"
+        body={`سيُحذف «${removing?.title ?? ''}» من متجر ${removing?.vendorName || 'المورّد'} نهائياً. لا يمكن التراجع.`}
+        confirmLabel="حذف نهائي"
+        danger
+        busy={busy}
+        onConfirm={() => void remove()}
+        onCancel={() => setRemoving(null)}
+      />
     </>
   );
 }

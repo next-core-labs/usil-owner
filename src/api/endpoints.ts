@@ -86,9 +86,11 @@ export const users = {
 
 export const vendorApplications = {
   list: () => api.get<Listed<VendorApplication>>('/api/admin/vendor-applications').then((r) => r.data),
-  approve: (id: string) =>
+  /** `allowIncomplete`: approve a short file on purpose; the vendor keeps the list to finish. */
+  approve: (id: string, allowIncomplete = false) =>
     api.post<{ application: VendorApplication }>(
       `/api/admin/vendor-applications/${encodeURIComponent(id)}/approve`,
+      { allowIncomplete },
     ),
   reject: (id: string, reason: string) =>
     api.post<{ application: VendorApplication }>(
@@ -117,6 +119,7 @@ export const listings = {
   list: () => api.get<Listed<VendorListing>>('/api/admin/listings').then((r) => r.data),
   update: (id: string, input: Partial<Pick<VendorListing, 'fulfillment' | 'bookingMode' | 'price'>>) =>
     api.patch<{ listing: VendorListing }>(`/api/admin/listings/${encodeURIComponent(id)}`, input),
+  remove: (id: string) => api.delete<unknown>(`/api/admin/listings/${encodeURIComponent(id)}`),
 };
 
 export const vendorHubs = {

@@ -74,7 +74,7 @@ export type VendorApplication = {
   signup?: 'quick';
   /** Products in the applicant's workspace — reviewable under «المنتجات» before approval. */
   listingCount?: number;
-  /** What still blocks approval (`missingForApproval` on the server). */
+  /** What the file still lacks (`missingForApproval` on the server), pending or approved. */
   missing?: Array<{ key: string; label: string }>;
 };
 
