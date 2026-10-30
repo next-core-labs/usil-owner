@@ -27,16 +27,16 @@ export function StatusBadge({ status }: { status: ApplicationStatus }) {
   );
 }
 
-/** Pending rows only: approval is refused until nothing is missing. */
+/** Pending and approved rows: an approved vendor may still owe part of the file. */
 function missingOf(row: VendorApplication) {
-  return row.status === 'pending' ? row.missing || [] : [];
+  return row.status === 'rejected' ? [] : row.missing || [];
 }
 
 function FileBadge({ row }: { row: VendorApplication }) {
   const missing = missingOf(row);
   return (
     <div className="space-y-1">
-      {row.status !== 'pending' ? null : missing.length ? (
+      {row.status === 'rejected' ? null : missing.length ? (
         <Badge tone="warning" icon={<CircleAlert size={13} />}>
           ناقص {count(missing.length)}
         </Badge>
@@ -88,7 +88,7 @@ export function VendorApplications() {
     if (!approving) return;
     setBusy(true);
     try {
-      const result = await api.approve(approving.id);
+      const result = await api.approve(approving.id, missingOf(approving).length > 0);
       replace(result.application);
       toast.success(`اعتُمد ${approving.projectName}، وأُنشئ حساب المورّد ومساحة عمله.`);
       setApproving(null);
@@ -182,8 +182,7 @@ export function VendorApplications() {
                 size="sm"
                 onClick={() => setApproving(row)}
                 icon={<Check size={15} />}
-                disabled={missingOf(row).length > 0}
-                title={missingOf(row).length ? 'الملف ناقص — افتح التفاصيل' : undefined}
+                title={missingOf(row).length ? 'الملف ناقص — يكمله المورّد بعد الاعتماد' : undefined}
               >
                 اعتماد
               </Button>
@@ -248,7 +247,9 @@ export function VendorApplications() {
       >
         {detail && missingOf(detail).length ? (
           <div className="mb-4 rounded-lg border border-[color-mix(in_srgb,var(--warning)_40%,transparent)] bg-[var(--warning-wash)] px-3 py-2.5 text-[13px] text-ink">
-            <p className="font-medium">لا يمكن الاعتماد قبل أن يكمل المورّد:</p>
+            <p className="font-medium">
+              {detail.status === 'approved' ? 'معتمد، وما زال على المورّد أن يكمل:' : 'ما زال على المورّد أن يكمل:'}
+            </p>
             <ul className="mt-1 list-disc space-y-0.5 ps-5">
               {missingOf(detail).map((item) => (
                 <li key={item.key}>{item.label}</li>
@@ -297,9 +298,14 @@ export function VendorApplications() {
 
       <ConfirmDialog
         open={Boolean(approving)}
-        title="اعتماد المورّد؟"
-        body={`سيُنشأ حساب مورّد لـ ${approving?.projectName ?? ''} بالبريد ${approving?.email ?? ''}، وتُفتح مساحة عمله، ويظهر منتجه في السوق للعملاء.`}
-        confirmLabel="اعتماد"
+        title={approving && missingOf(approving).length ? 'اعتماد ملف ناقص؟' : 'اعتماد المورّد؟'}
+        body={
+          `سيُنشأ حساب مورّد لـ ${approving?.projectName ?? ''} بالبريد ${approving?.email ?? ''}، وتُفتح مساحة عمله، ويظهر منتجه في السوق للعملاء.` +
+          (approving && missingOf(approving).length
+            ? ` الملف ناقص: ${missingOf(approving).map((item) => item.label).join('، ')}. تظل هذه القائمة ظاهرة في لوحة المورّد حتى يكملها.`
+            : '')
+        }
+        confirmLabel={approving && missingOf(approving).length ? 'اعتماد رغم النقص' : 'اعتماد'}
         busy={busy}
         onConfirm={() => void approve()}
         onCancel={() => setApproving(null)}
