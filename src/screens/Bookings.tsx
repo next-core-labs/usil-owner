@@ -217,6 +217,7 @@ export function Bookings() {
         <DataTable
           columns={columns}
           rows={visible}
+          resetKey={`${search}|${filter}`}
           rowKey={(row) => row.id}
           loading={resource.loading}
           empty={

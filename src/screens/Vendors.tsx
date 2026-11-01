@@ -86,6 +86,7 @@ export function Vendors() {
         <DataTable
           columns={columns}
           rows={visible}
+          resetKey={search}
           rowKey={(row) => row.vendorId}
           loading={resource.loading}
           empty={

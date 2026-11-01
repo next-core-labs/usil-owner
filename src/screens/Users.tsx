@@ -299,6 +299,7 @@ export function Users() {
         <DataTable
           columns={columns}
           rows={visible}
+          resetKey={`${search}|${filter}`}
           rowKey={(row) => row.id}
           loading={resource.loading}
           empty={<EmptyState icon={<UsersIcon size={22} />} title="لا نتائج مطابقة" />}
