@@ -208,6 +208,7 @@ export function Listings() {
         <DataTable
           columns={columns}
           rows={visible}
+          resetKey={search}
           rowKey={(row) => row.id}
           loading={resource.loading}
           empty={<EmptyState icon={<Package size={22} />} title={rows.length ? 'لا نتائج مطابقة' : 'لا توجد منتجات بعد'} />}
