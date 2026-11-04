@@ -254,6 +254,10 @@ export const siteCategories = {
   read: () => api.get<Wrapped<SiteCategories>>('/api/admin/categories').then((r) => r.data),
   add: (input: SiteCategoryDraft) =>
     api.post<Wrapped<SiteCategories>>('/api/admin/categories', input).then((r) => r.data),
+  update: (id: string, input: SiteCategoryDraft) =>
+    api
+      .patch<Wrapped<SiteCategories>>(`/api/admin/categories/${encodeURIComponent(id)}`, input)
+      .then((r) => r.data),
   remove: (id: string) =>
     api.delete<Wrapped<SiteCategories>>(`/api/admin/categories/${encodeURIComponent(id)}`).then((r) => r.data),
 };

@@ -13,6 +13,7 @@ import {
   Music,
   Palette,
   PartyPopper,
+  Pencil,
   Plus,
   Shapes,
   Sparkles,
@@ -69,20 +70,24 @@ function CategoryIcon({ icon, size = 18 }: { icon: string; size?: number }) {
   return <Icon size={size} aria-hidden />;
 }
 
-function AddCategoryModal({
-  open,
+/** Add when `editing` is null; otherwise edit that category in place (its id, and so its products, stay). */
+function CategoryModal({
+  editing,
   busy,
   onClose,
   onSubmit,
 }: {
-  open: boolean;
+  editing: SiteCategory | null;
   busy: boolean;
   onClose: () => void;
   onSubmit: (draft: SiteCategoryDraft) => void;
 }) {
-  const [draft, setDraft] = useState<SiteCategoryDraft>(EMPTY_DRAFT);
+  const [draft, setDraft] = useState<SiteCategoryDraft>(() =>
+    editing ? { name: editing.name, short: editing.short, nameEn: editing.nameEn, icon: editing.icon } : EMPTY_DRAFT,
+  );
   const patch = (changes: Partial<SiteCategoryDraft>) => setDraft((current) => ({ ...current, ...changes }));
   const valid = draft.name.trim().length >= 2;
+  const renamesProducts = Boolean(editing?.listingCount) && draft.name.trim() !== editing?.name;
 
   function submit(event: FormEvent) {
     event.preventDefault();
@@ -91,23 +96,24 @@ function AddCategoryModal({
 
   return (
     <Modal
-      open={open}
-      onClose={() => {
-        setDraft(EMPTY_DRAFT);
-        onClose();
-      }}
-      title="إضافة تصنيف"
-      description="يظهر التصنيف في الصفحة الرئيسية وصفحة الخدمات، ويختاره المورّدون عند إضافة منتجاتهم."
+      open
+      onClose={onClose}
+      title={editing ? 'تعديل التصنيف' : 'إضافة تصنيف'}
+      description={
+        editing
+          ? 'يتغيّر التصنيف في الموقع وعند المورّدين فوراً، وتبقى منتجاته تحته.'
+          : 'يظهر التصنيف في الصفحة الرئيسية وصفحة الخدمات، ويختاره المورّدون عند إضافة منتجاتهم.'
+      }
       footer={
         <>
           <Button onClick={onClose}>إلغاء</Button>
-          <Button variant="primary" type="submit" form="add-category" busy={busy} disabled={!valid}>
-            إضافة التصنيف
+          <Button variant="primary" type="submit" form="category-form" busy={busy} disabled={!valid}>
+            {editing ? 'حفظ التعديل' : 'إضافة التصنيف'}
           </Button>
         </>
       }
     >
-      <form id="add-category" className="space-y-4" onSubmit={submit}>
+      <form id="category-form" className="space-y-4" onSubmit={submit}>
         <Field label="اسم التصنيف *" hint="الاسم الكامل كما يراه العميل، مثل «عطور وبخور».">
           <Input
             autoFocus
@@ -117,6 +123,11 @@ function AddCategoryModal({
             placeholder="عطور وبخور"
           />
         </Field>
+        {renamesProducts ? (
+          <p className="rounded-lg bg-sunken px-3 py-2 text-xs text-ink-secondary">
+            سيظهر الاسم الجديد على منتجاته ({count(editing!.listingCount)}) أيضاً.
+          </p>
+        ) : null}
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="اسم مختصر" hint="كلمة واحدة للشريط الصغير. يُؤخذ من الاسم إن تركته فارغاً.">
             <Input
@@ -170,17 +181,23 @@ function AddCategoryModal({
 export function Categories() {
   const resource = useResource(() => api.read(), []);
   const toast = useToast();
-  const [adding, setAdding] = useState(false);
+  /** null: closed · 'new': adding · a category: editing it. */
+  const [modal, setModal] = useState<SiteCategory | 'new' | null>(null);
   const [removing, setRemoving] = useState<SiteCategory | null>(null);
   const [busy, setBusy] = useState(false);
   const categories = resource.data?.categories || [];
 
-  async function add(draft: SiteCategoryDraft) {
+  async function save(draft: SiteCategoryDraft) {
+    const editing = modal && modal !== 'new' ? modal : null;
     setBusy(true);
     try {
-      resource.set(await api.add(draft));
-      setAdding(false);
-      toast.success(`أُضيف تصنيف «${draft.name.trim()}». يظهر للزوار والمورّدين الآن.`);
+      resource.set(editing ? await api.update(editing.id, draft) : await api.add(draft));
+      setModal(null);
+      toast.success(
+        editing
+          ? `حُفظ تعديل «${draft.name.trim()}».`
+          : `أُضيف تصنيف «${draft.name.trim()}». يظهر للزوار والمورّدين الآن.`,
+      );
     } catch (caught) {
       toast.failure(errorText(caught));
     } finally {
@@ -224,7 +241,7 @@ export function Categories() {
               <ExternalLink size={14} />
               فتح الموقع
             </a>
-            <Button size="sm" variant="primary" icon={<Plus size={14} />} onClick={() => setAdding(true)}>
+            <Button size="sm" variant="primary" icon={<Plus size={14} />} onClick={() => setModal('new')}>
               إضافة تصنيف
             </Button>
           </div>
@@ -262,6 +279,15 @@ export function Categories() {
                   </span>
                   <Button
                     size="sm"
+                    aria-label={`تعديل ${category.name}`}
+                    title="تعديل"
+                    icon={<Pencil size={14} />}
+                    onClick={() => setModal(category)}
+                  >
+                    <span className="hidden sm:inline">تعديل</span>
+                  </Button>
+                  <Button
+                    size="sm"
                     variant="danger"
                     aria-label={`حذف ${category.name}`}
                     title="حذف"
@@ -279,7 +305,7 @@ export function Categories() {
               icon={<Shapes size={22} />}
               title="لا توجد تصنيفات"
               action={
-                <Button size="sm" variant="primary" icon={<Plus size={14} />} onClick={() => setAdding(true)}>
+                <Button size="sm" variant="primary" icon={<Plus size={14} />} onClick={() => setModal('new')}>
                   إضافة تصنيف
                 </Button>
               }
@@ -288,7 +314,15 @@ export function Categories() {
         </Card>
       )}
 
-      {adding ? <AddCategoryModal open busy={busy} onClose={() => setAdding(false)} onSubmit={(draft) => void add(draft)} /> : null}
+      {modal ? (
+        <CategoryModal
+          key={modal === 'new' ? 'new' : modal.id}
+          editing={modal === 'new' ? null : modal}
+          busy={busy}
+          onClose={() => setModal(null)}
+          onSubmit={(draft) => void save(draft)}
+        />
+      ) : null}
 
       <ConfirmDialog
         open={Boolean(removing)}
