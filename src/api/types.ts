@@ -106,6 +106,8 @@ export type VendorListing = {
   vendorPending?: boolean;
   title: string;
   category: string;
+  /** Saved with the listing, so owner-added (and since-removed) categories still have a name. */
+  categoryName?: string;
   shortDesc?: string;
   price: number;
   priceUnit: string;
@@ -310,6 +312,24 @@ export type SiteAppearance = {
   heroCards: HeroCard[];
   updatedAt: string;
 };
+
+/** «التصنيفات» — backend: `server/catalog/category-store.ts`. */
+export type SiteCategory = {
+  id: string;
+  name: string;
+  short: string;
+  nameEn: string;
+  icon: string;
+  /** Vendor products saved under this category (owner listing only). */
+  listingCount: number;
+};
+
+export type SiteCategories = {
+  categories: SiteCategory[];
+  updatedAt: string;
+};
+
+export type SiteCategoryDraft = Pick<SiteCategory, 'name' | 'short' | 'nameEn' | 'icon'>;
 
 export type HealthPayload = {
   status: string;

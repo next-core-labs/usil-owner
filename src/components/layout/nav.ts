@@ -1,4 +1,5 @@
 import {
+  Shapes,
   Banknote,
   HandCoins,
   Bot,
@@ -64,6 +65,7 @@ export const NAV: NavGroup[] = [
       { route: 'integrations', label: 'الذكاء الاصطناعي', icon: Bot, adminOnly: true },
       { route: 'seo', label: 'الظهور والفهرسة', icon: Search },
       { route: 'appearance', label: 'مظهر الواجهة', icon: Palette, adminOnly: true },
+      { route: 'categories', label: 'التصنيفات', icon: Shapes, adminOnly: true },
     ],
   },
 ];
