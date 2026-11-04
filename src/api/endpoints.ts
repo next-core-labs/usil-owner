@@ -28,6 +28,8 @@ import type {
   PublicUser,
   SeoSettings,
   SiteAppearance,
+  SiteCategories,
+  SiteCategoryDraft,
   SupportMessage,
   SupportStatus,
   VendorApplication,
@@ -246,6 +248,14 @@ export const seo = {
   read: () => api.get<Wrapped<SeoSettings>>('/api/admin/seo').then((r) => r.data),
   save: (input: Partial<SeoSettings>) =>
     api.put<Wrapped<SeoSettings>>('/api/admin/seo', input).then((r) => r.data),
+};
+
+export const siteCategories = {
+  read: () => api.get<Wrapped<SiteCategories>>('/api/admin/categories').then((r) => r.data),
+  add: (input: SiteCategoryDraft) =>
+    api.post<Wrapped<SiteCategories>>('/api/admin/categories', input).then((r) => r.data),
+  remove: (id: string) =>
+    api.delete<Wrapped<SiteCategories>>(`/api/admin/categories/${encodeURIComponent(id)}`).then((r) => r.data),
 };
 
 export const siteAppearance = {

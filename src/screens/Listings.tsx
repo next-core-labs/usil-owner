@@ -127,7 +127,7 @@ export function Listings() {
     {
       key: 'category',
       header: 'القسم',
-      render: (row) => <span className="text-[13px] text-ink-secondary">{labelFor(CATEGORY_LABEL, row.category)}</span>,
+      render: (row) => <span className="text-[13px] text-ink-secondary">{CATEGORY_LABEL[row.category] || row.categoryName || labelFor(CATEGORY_LABEL, row.category)}</span>,
     },
     {
       key: 'price',
